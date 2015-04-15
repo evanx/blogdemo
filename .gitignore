@@ -1,0 +1,9 @@
+.idea
+/nbproject/private/
+/node_modules
+/tmp/*
+/conf/*
+/logs/*
+/backups/*
+/*.log
+/*.out

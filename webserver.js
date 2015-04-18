@@ -4,6 +4,7 @@ import async from 'async';
 import lodash from 'lodash';
 import express from 'express';
 import bunyan from 'bunyan';
+import React from 'react';
 
 import postService from './services/postService';
 
@@ -52,7 +53,7 @@ function retrievePost(id, callback) {
    redisClient.hgetall('test:dict:post', callback);
 }
 
-function retrievepostService(ids, callback) {
+function retrievePosts(ids, callback) {
    async.map(ids, function(id, callback) {
       redisClient.hgetall('test:dict:post:' + id, callback);
    }, function (err, postService) {
@@ -70,21 +71,27 @@ function retrievepostService(ids, callback) {
    });
 }
 
+import Posts from './components/Posts';
+
 function getPosts(req, res) {
    redisClient.smembers('test:set:post', function (err, ids) {
       if (err) {
          res.status(500).send(err.toString());
       } else {
-         retrievepostService(ids, function(err, postService) {
+         retrievePosts(ids, function(err, postService) {
             if (err) {
                res.status(500).send(err.toString());
             } else {
-               res.json(postService);
+               var html = React.renderToString(
+                  React.createElement(Post, {post}));
+               res.set('Content-Type', 'text/html');
+               res.send(html);
             }
          });
       }
    });
 }
+
 
 function getHelp(req, res) {
    try {

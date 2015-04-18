@@ -1,0 +1,17 @@
+
+$ redis-cli hkeys test:dict:post:1
+1) "title"
+2) "description"
+3) "body"
+4) "published"
+
+$ redis-cli smembers test:set:post
+1) "1"
+2) "2"
+
+$ redis-cli get test:seq:post
+"2"
+
+$ redis-cli zrange test:sorted:post:published 0 -1
+1) "2"
+2) "1"

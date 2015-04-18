@@ -1,8 +1,8 @@
 
 c1commit() {
   message="$1"
-  git add --all  
-  git commit -m "$message" 
+  git add --all
+  git commit -m "$message"
   git push
 }
 
@@ -12,4 +12,4 @@ then
   c1commit "$*"
 else
   c1commit "update"
-fi 
+fi

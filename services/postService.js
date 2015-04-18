@@ -3,7 +3,7 @@ import { redis } from './redis';
 
 const type = 'post';
 
-module.exports = {
+const postService = {
    find: function(id, callback) {
       redis.hgetall({type, id}, function (err, post) {
          if (err) {
@@ -13,4 +13,6 @@ module.exports = {
          }
       });
    }
-}
+};
+
+module.exports = postService;

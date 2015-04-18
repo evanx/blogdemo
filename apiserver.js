@@ -1,35 +1,20 @@
-
 'use strict';
 
 import async from 'async';
 import lodash from 'lodash';
 import express from 'express';
 import bunyan from 'bunyan';
+
 import redisModule from 'redis';
 
-const app = express();
 const log = bunyan.createLogger({name: 'hydration'});
+const app = express();
 const redisClient = redisModule.createClient();
+const marked = require('marked');
 
 redisClient.on('error', err => {
    log.error('error', err);
 });
-
-import Posts from './Posts';
-
-function getPostId(req, res) {
-   Posts.find(req.params.id, function (err, post) {
-      if (err) {
-         res.status(500).send(err);
-      } else {
-         res.json(post);
-      }
-   });
-}
-
-
-var marked = require('marked');
-
 
 global.log = log;
 global.redisClient = redisClient;
@@ -81,6 +66,16 @@ function getPosts(req, res) {
    });
 }
 
+function getPostId(req, res) {
+   redisClient.hgetall('test:dict:post:' + req.params.id, function (err, post) {
+      if (err) {
+         res.status(500).send(err);
+      } else {
+         res.json(post);
+      }
+   });
+}
+
 function getHelp(req, res) {
    try {
       res.set('Content-Type', "text/html");
@@ -106,8 +101,8 @@ function start(env) {
    app.get('/help', getHelp);
    app.get('/posts', getPosts);
    app.get('/post/:id', getPostId);
-   app.listen(env.APP_PORT);
-   log.info('started', {port: env.APP_PORT});
+   app.listen(env.API_PORT);
+   log.info('started', {port: env.API_PORT});
 }
 
 start(process.env);

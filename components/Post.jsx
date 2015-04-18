@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { redis, redisClient, RedisMulti } from './redis';
 
 export const Post = React.createClass({
    render: function () {

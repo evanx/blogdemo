@@ -5,7 +5,7 @@ import bunyan from 'bunyan';
 export const redisClient = redisModule.createClient();
 const log = bunyan.createLogger({name: 'RedisUtil', level: 'debug'});
 
-redisClient.on('error', function (err) {
+redisClient.on('error', err => {
    log.error('error', err);
 });
 

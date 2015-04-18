@@ -1,3 +1,4 @@
 
 require('babel/register');
-require('./lib/server');
+require('./apiserver');
+require('./webserver');

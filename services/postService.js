@@ -1,17 +1,12 @@
 
-import { redis } from './redis';
+import redisModule from 'redis';
+import bunyan from 'bunyan';
 
-const type = 'post';
+export const redisClient = redisModule.createClient();
 
 const postService = {
    find: function(id, callback) {
-      redis.hgetall({type, id}, function (err, post) {
-         if (err) {
-            callback(err);
-         } else {
-            callback(null, post);
-         }
-      });
+      redisClient.hgetall('post:dict:' + id, callback);
    }
 };
 

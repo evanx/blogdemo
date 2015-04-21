@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-export const Post = React.createClass({
+const Post = React.createClass({
    render: function () {
       let post = this.props.post;
       return (
@@ -12,3 +12,5 @@ export const Post = React.createClass({
       );
    }
 });
+
+module.exports = Post;

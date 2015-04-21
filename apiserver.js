@@ -29,14 +29,13 @@ function handleError(res, error) {
 }
 
 function retrievePost(id, callback) {
-   redisClient.hgetall('test:dict:post', callback);
+   redisClient.hgetall('post:dict:' + id, callback);
 }
 
 function retrievePosts(ids, callback) {
    async.map(ids, function(id, callback) {
-      redisClient.hgetall('test:dict:post:' + id, callback);
+      redisClient.hgetall('post:dict:' + id, callback);
    }, function (err, posts) {
-      log.info('posts', posts);
       if (err) {
          callback(err);
       } else {
@@ -51,7 +50,7 @@ function retrievePosts(ids, callback) {
 }
 
 function getPosts(req, res) {
-   redisClient.smembers('test:set:post', function (err, ids) {
+   redisClient.smembers('post:set', function (err, ids) {
       if (err) {
          res.status(500).send(err.toString());
       } else {
@@ -62,16 +61,6 @@ function getPosts(req, res) {
                res.json(posts);
             }
          });
-      }
-   });
-}
-
-function getPostId(req, res) {
-   redisClient.hgetall('test:dict:post:' + req.params.id, function (err, post) {
-      if (err) {
-         res.status(500).send(err);
-      } else {
-         res.json(post);
       }
    });
 }
@@ -96,13 +85,24 @@ function appLogger(req, res, next) {
    next();
 }
 
-function start(env) {
-   app.use(appLogger);
-   app.get('/help', getHelp);
-   app.get('/posts', getPosts);
-   app.get('/post/:id', getPostId);
-   app.listen(env.API_PORT);
-   log.info('started', {port: env.API_PORT});
+
+function getPostId(req, res) {
+   redisClient.hgetall('post:dict:' + req.params.id, (err, post) => {
+      if (err) {
+         res.status(500).send(err);
+      } else {
+         res.json(post);
+      }
+   });
 }
 
-start(process.env);
+function start() {
+   app.use(appLogger);
+   app.get('/help', getHelp);
+   app.get('/post/:id', getPostId);
+   app.get('/posts', getPosts);
+   app.listen(process.env.API_PORT);
+   log.info('started', {port: process.env.API_PORT});
+}
+
+start();

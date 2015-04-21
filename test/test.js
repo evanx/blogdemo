@@ -26,16 +26,16 @@ const posts = [
    }
 ];
 
-function createPostsTest(callback) {
-   async.map(posts, createPost, callback);
+function storePostsTest(callback) {
+   async.map(posts, storePost, callback);
 }
 
-function createPost(post, callback) {
+function storePost(post, callback) {
    redis.incr('post:seq', function(err, id) {
       if (err) {
          callback(err);
       } else {
-         log.info('createPost', id);
+         log.info('storePost', id);
          let multi = redis.multi();
          multi.hmset('post:dict:' + id, post);
          multi.lpush('post:list', id);
@@ -88,11 +88,11 @@ function updatePostTest(callback) {
 
 function test() {
    async.series([
-      createPostsTest,
+      storePostsTest,
       updatePostTest,
       loadPostTest
    ], function(err, results) {
-      ... // assert
+      // assert
       redis.end();
    });
 }

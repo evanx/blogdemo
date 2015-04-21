@@ -1,15 +1,14 @@
 
-ns=test
 
 c0count() {
-  redis-cli keys "$ns:*" | wc -l
+  redis-cli keys "post:*" | wc -l
 }
 
 c0print_dict() {
-  echo; echo redis-cli keys "$ns:dict:*"
-  redis-cli keys "$ns:dict:*" | wc -l
-  echo; echo redis-cli keys "$ns:dict:*"
-  for key in `redis-cli keys "$ns:dict:*"`
+  echo; echo redis-cli keys "post:dict:*"
+  redis-cli keys "post:dict:*" | wc -l
+  echo; echo redis-cli keys "post:dict:*"
+  for key in `redis-cli keys "post:dict:*"`
   do
     echo; echo redis-cli hkeys "$key"
     redis-cli hkeys "$key"
@@ -20,7 +19,7 @@ c0print_dict() {
 
 c0print_seq() {
   echo; echo 'seq'
-  for key in `redis-cli keys "$ns:seq:*"`
+  for key in `redis-cli keys "post:seq:*"`
   do
     echo; echo redis-cli get "$key"
     redis-cli get "$key"
@@ -29,7 +28,7 @@ c0print_seq() {
 
 c0print_set() {
   echo; echo 'set'
-  for key in `redis-cli keys "$ns:set:*"`
+  for key in `redis-cli keys "post:set:*"`
   do
     echo; echo redis-cli smembers "$key"
     redis-cli smembers "$key"
@@ -37,7 +36,7 @@ c0print_set() {
 }
 
 c0print_sorted() {
-  for key in `redis-cli keys "$ns:sorted:*"`
+  for key in `redis-cli keys "post:sorted:*"`
   do
     echo; echo redis-cli zrange "$key" 0 -1
     redis-cli zrange "$key" 0 -1
@@ -53,7 +52,7 @@ c0print() {
 
 c0clear() {
   c0count
-  for key in `redis-cli keys "$ns:*"`
+  for key in `redis-cli keys "post:*"`
   do
     redis-cli del "$key"
   done

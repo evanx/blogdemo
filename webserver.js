@@ -54,36 +54,35 @@ function retrievePost(id, callback) {
 }
 
 function retrievePosts(ids, callback) {
-   async.map(ids, function(id, callback) {
-      redisClient.hgetall('test:dict:post:' + id, callback);
-   }, function (err, postService) {
-      log.info('postService', postService);
-      if (err) {
-         callback(err);
-      } else {
-         callback(null, lodash.map(postService, function (post, index) {
-            return {
-               id: ids[index],
-               title: post.title
-            }
-         }));
-      }
+   async.map(ids, function(id, cb) {
+      redisClient.hgetall('post:dict:' + id, cb);
+   }, callback);
+}
+
+function retrievePostsSummary(ids, callback) {
+   retrievePosts(ids, function(err, posts) {
+      callback(err, lodash.map(posts, function (post, index) {
+         return {
+            id: ids[index],
+            title: post.title
+         }
+      }));
    });
 }
 
 import Posts from './components/Posts';
 
 function getPosts(req, res) {
-   redisClient.smembers('test:set:post', function (err, ids) {
+   redisClient.lrange('post:list', 0, 10, function (err, ids) {
       if (err) {
          res.status(500).send(err.toString());
       } else {
-         retrievePosts(ids, function(err, postService) {
+         retrievePosts(ids, function(err, posts) {
             if (err) {
                res.status(500).send(err.toString());
             } else {
                var html = React.renderToString(
-                  React.createElement(Post, {post}));
+                  React.createElement(Posts, {posts}));
                res.set('Content-Type', 'text/html');
                res.send(html);
             }
@@ -91,7 +90,6 @@ function getPosts(req, res) {
       }
    });
 }
-
 
 function getHelp(req, res) {
    try {

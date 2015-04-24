@@ -1,14 +1,22 @@
+#!/bin/bash
 
 name=post
 
-c0count() {
+count() {
   redis-cli keys "$name:*" | wc -l
 }
 
-c0print_dict() {
-  echo; echo redis-cli keys "$name:dict:*"
+print_sorted() {
+  for key in `redis-cli keys "$name:sorted:*"`
+  do
+    echo; echo redis-cli zrange "$key" 0 -1
+    redis-cli zrange "$key" 0 -1
+  done
+}
+
+print_dict() {
+  echo redis-cli keys "$name:dict:*"
   redis-cli keys "$name:dict:*" | wc -l
-  echo; echo redis-cli keys "$name:dict:*"
   for key in `redis-cli keys "$name:dict:*"`
   do
     echo; echo redis-cli hkeys "$key"
@@ -36,13 +44,6 @@ c0print_set() {
   done
 }
 
-c0print_sorted() {
-  for key in `redis-cli keys "$name:sorted:*"`
-  do
-    echo; echo redis-cli zrange "$key" 0 -1
-    redis-cli zrange "$key" 0 -1
-  done
-}
 
 c0print() {
   c0print_dict

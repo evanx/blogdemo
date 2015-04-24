@@ -49,21 +49,39 @@ function retrievePosts(ids, callback) {
    });
 }
 
-function getPosts(req, res) {
-   redisClient.smembers('post:set', function (err, ids) {
-      if (err) {
-         res.status(500).send(err.toString());
-      } else {
-         retrievePosts(ids, function(err, posts) {
-            if (err) {
-               res.status(500).send(err.toString());
-            } else {
-               res.json(posts);
-            }
-         });
-      }
+function sendPosts(res, err, ids) {
+   if (err) {
+      res.status(500).send(err.toString());
+   } else {
+      retrievePosts(ids, function(err, posts) {
+         if (err) {
+            res.status(500).send(err.toString());
+         } else {
+            res.json(posts);
+         }
+      });
+   }
+}
+
+function getPostsAll(req, res) {
+   redisClient.smembers('post:set', (err, ids) => {
+      sendPosts(res, err, ids);
    });
 }
+
+function getPostsLatest(req, res) {
+   redisClient.lrange('post:list', 0, 10, (err, ids) => {
+      sendPosts(res, err, ids);
+   });
+}
+
+function getPostsSorted(req, res) {
+   redisClient.zrange('post:sorted:published', 0, 10, (err, ids) => {
+      sendPosts(res, err, ids);
+   });
+}
+
+
 
 function getHelp(req, res) {
    try {

@@ -9,13 +9,24 @@ import React from 'react';
 import postService from './services/postService';
 
 import Post from './components/Post';
+import Posts from './components/Posts';
+
+function start() {
+   app.use(appLogger);
+   app.get('/help', getHelp);
+   app.get('/posts', getPosts);
+   app.get('/post/:id', getPostId);
+   app.listen(process.env.APP_PORT);
+   log.info('started', {port: process.env.APP_PORT});
+}
 
 function getPostId(req, res) {
    postService.find(req.params.id, function (err, post) {
       if (err) {
          res.status(500).send(err);
       } else {
-         var html = React.renderToString(React.createElement(Post, {post}));
+         var html = React.renderToString(
+            React.createElement(Post, {post}));
          res.set('Content-Type', 'text/html');
          res.send(html);
       }
@@ -109,15 +120,6 @@ function getHelp(req, res) {
 function appLogger(req, res, next) {
    log.info('app', req.url);
    next();
-}
-
-function start(env) {
-   app.use(appLogger);
-   app.get('/help', getHelp);
-   app.get('/posts', getPosts);
-   app.get('/post/:id', getPostId);
-   app.listen(env.APP_PORT);
-   log.info('started', {port: env.APP_PORT});
 }
 
 start(process.env);

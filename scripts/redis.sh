@@ -5,6 +5,13 @@ c0count() {
   redis-cli keys "$name:*" | wc -l
 }
 
+c0clear() {
+  for key in `redis-cli keys "$name:*"`
+  do
+    redis-cli del "$key"
+  done
+}
+
 c0print_dict() {
   echo; echo redis-cli keys "$name:dict:*"
   redis-cli keys "$name:dict:*" | wc -l

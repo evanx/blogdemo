@@ -10,13 +10,14 @@ var style = {
    }
 };
 
+//               <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
 var PostPage = React.createClass({
    render: function () {
       let post = this.props.post;
       return (
          <html>
             <head>
-               <meta name="viewport" content="width=device-width, initial-scale=1"/>
                <title>{post.title}</title>
                <meta name="twitter:description" content={post.description}/>
                <meta name="og:description" content={post.description}/>

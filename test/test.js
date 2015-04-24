@@ -40,7 +40,7 @@ function storePost(post, callback) {
          multi.hmset('post:dict:' + id, post);
          multi.lpush('post:list', id);
          multi.sadd('post:set', id);
-         multi.zadd('post:sorted:published', id, post.published);
+         multi.zadd('post:sorted:published', post.published, id);
          multi.exec(function(err, results) {
             if (!err) {
                callback(null, id);

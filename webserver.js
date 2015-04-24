@@ -64,22 +64,36 @@ function retrievePost(id, callback) {
    redisClient.hgetall('test:dict:post', callback);
 }
 
-function retrievePosts(ids, callback) {
+function retrievePostsFull(ids, callback) {
    async.map(ids, function(id, cb) {
       redisClient.hgetall('post:dict:' + id, cb);
    }, callback);
 }
 
-function retrievePostsSummary(ids, callback) {
-   retrievePosts(ids, function(err, posts) {
-      callback(err, lodash.map(posts, (post, index) => {
-         return {
-            id: ids[index],
-            title: post.title
-         }
-      }));
+function retrievePosts(ids, callback) {
+   log.info('posts', ids);
+   async.map(ids, function(id, cb) {
+      redisClient.hgetall('post:dict:' + id, (err, post) => {
+         log.info('posts hgetall', {id, err, post});
+         cb(err, post);
+      });
+   }, (err, posts) => {
+      log.info('posts', {ids, err, posts});
+      if (err) {
+         callback(err);
+      } else {
+         callback(null, lodash.map(posts, (post, index) => {
+            return {
+               id: ids[index],
+               title: post.title,
+               description: post.description
+            }
+         }));
+      }
    });
 }
+
+
 
 import Posts from './components/Posts';
 
@@ -102,7 +116,7 @@ function getPostsFeed(req, res) {
 }
 
 function getPostsSorted(req, res) {
-   redisClient.zrange('post:sorted:published',
+   redisClient.zrevrange('post:sorted:published',
          0, req.query.count, (err, ids) => {
       sendPosts(res, err, ids);
    });
@@ -112,8 +126,7 @@ function sendPosts(res, err, ids) {
    if (err) {
       res.status(500).send(err);
    } else {
-      log.
-      retrievePosts(ids, function(err, posts) {
+      retrievePosts(ids, (err, posts) => {
          if (err) {
             res.status(500).send(err);
          } else {

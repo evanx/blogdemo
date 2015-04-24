@@ -39,7 +39,7 @@ function retrievePosts(ids, callback) {
       if (err) {
          callback(err);
       } else {
-         callback(null, lodash.map(posts, function (post, index) {
+         callback(null, lodash.map(posts, (post, index) => {
             return {
                id: ids[index],
                title: post.title
@@ -69,17 +69,28 @@ function getPostsAll(req, res) {
    });
 }
 
-function getPostsLatest(req, res) {
-   redisClient.lrange('post:list', 0, 10, (err, ids) => {
+function getPosts(req, res) {
+   if (req.query.q === 'sorted') {
+      getPostsSorted(req, res);
+   } else {
+      getPostsFeed(req, res);
+   }
+}
+
+function getPostsFeed(req, res) {
+   redisClient.lrange('post:list',
+         0, req.query.count || 10, (err, ids) => {
       sendPosts(res, err, ids);
    });
 }
 
 function getPostsSorted(req, res) {
-   redisClient.zrange('post:sorted:published', 0, 10, (err, ids) => {
+   redisClient.zrange('post:sorted:published',
+         0, req.query.count || 10, (err, ids) => {
       sendPosts(res, err, ids);
    });
 }
+
 
 
 

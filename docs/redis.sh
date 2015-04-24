@@ -2,15 +2,10 @@
 
 name=post
 
-count() {
-  redis-cli keys "$name:*" | wc -l
-}
-
-print_sorted() {
-  for key in `redis-cli keys "$name:sorted:*"`
+delete_all() {
+  for key in `redis-cli keys "$name:*"`
   do
-    echo; echo redis-cli zrange "$key" 0 -1
-    redis-cli zrange "$key" 0 -1
+    redis-cli del "$key"
   done
 }
 
@@ -25,6 +20,19 @@ print_dict() {
     redis-cli hgetall "$key"
   done
 }
+
+print_sorted() {
+  for key in `redis-cli keys "$name:sorted:*"`
+  do
+    echo; echo redis-cli zrange "$key" 0 -1
+    redis-cli zrange "$key" 0 -1
+  done
+}
+
+count() {
+  redis-cli keys "$name:*" | wc -l
+}
+
 
 c0print_seq() {
   echo; echo 'seq'

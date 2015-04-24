@@ -51,14 +51,6 @@ c0print() {
   c0print_sorted
 }
 
-c0clear() {
-  c0count
-  for key in `redis-cli keys "$name:*"`
-  do
-    redis-cli del "$key"
-  done
-  c0count
-}
 
 if [ $# -gt 0 ]
 then

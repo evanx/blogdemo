@@ -9,7 +9,6 @@ import React from 'react';
 import postService from './services/postService';
 
 import Post from './components/Post';
-import Posts from './components/Posts';
 
 function start() {
    app.use(appLogger);
@@ -21,21 +20,22 @@ function start() {
 }
 
 function getPostId(req, res) {
-   postService.find(req.params.id, function (err, post) {
+   postService.find(req.params.id, (err, post) => {
       if (err) {
          res.status(500).send(err);
       } else {
          var html = React.renderToString(
-            React.createElement(Post, {post}));
+            React.createElement(PostPage, {post}));
          res.set('Content-Type', 'text/html');
          res.send(html);
       }
    });
 }
 
+
 import redisModule from 'redis';
 
-const log = bunyan.createLogger({name: 'hydration'});
+const log = bunyan.createLogger({name: 'webserver'});
 const app = express();
 const redisClient = redisModule.createClient();
 const marked = require('marked');
@@ -72,7 +72,7 @@ function retrievePosts(ids, callback) {
 
 function retrievePostsSummary(ids, callback) {
    retrievePosts(ids, function(err, posts) {
-      callback(err, lodash.map(posts, function (post, index) {
+      callback(err, lodash.map(posts, (post, index) => {
          return {
             id: ids[index],
             title: post.title
@@ -84,22 +84,46 @@ function retrievePostsSummary(ids, callback) {
 import Posts from './components/Posts';
 
 function getPosts(req, res) {
-   redisClient.lrange('post:list', 0, 10, function (err, ids) {
-      if (err) {
-         res.status(500).send(err.toString());
-      } else {
-         retrievePosts(ids, function(err, posts) {
-            if (err) {
-               res.status(500).send(err.toString());
-            } else {
-               var html = React.renderToString(
-                  React.createElement(Posts, {posts}));
-               res.set('Content-Type', 'text/html');
-               res.send(html);
-            }
-         });
-      }
+   if (!req.query.count) {
+      req.query.count = 10;
+   }
+   if (req.query.q === 'sorted') {
+      getPostsSorted(req, res);
+   } else {
+      getPostsFeed(req, res);
+   }
+}
+
+function getPostsFeed(req, res) {
+   redisClient.lrange('post:list',
+         0, req.query.count, (err, ids) => {
+      sendPosts(res, err, ids);
    });
+}
+
+function getPostsSorted(req, res) {
+   redisClient.zrange('post:sorted:published',
+         0, req.query.count, (err, ids) => {
+      sendPosts(res, err, ids);
+   });
+}
+
+function sendPosts(res, err, ids) {
+   if (err) {
+      res.status(500).send(err);
+   } else {
+      log.
+      retrievePosts(ids, function(err, posts) {
+         if (err) {
+            res.status(500).send(err);
+         } else {
+            var html = React.renderToString(
+               React.createElement(Posts, {posts}));
+            res.set('Content-Type', 'text/html');
+            res.send(html);
+         }
+      });
+   }
 }
 
 function getHelp(req, res) {

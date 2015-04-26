@@ -16,15 +16,17 @@ const posts = [
       title: 'my first post',
       description: 'so this is my first post',
       body: '<p>first post first para</p><p>the second para</p>',
-      published: new Date().getTime() + 1000
+      published: new Date().getTime()
    },
    {
       title: 'my second post',
       description: 'now this is my second post',
       body: '<p>second post first para</p><p>the second para</p>',
-      published: new Date().getTime()
+      published: new Date().getTime() + 1000
    }
 ];
+
+
 
 function storePostsTest(callback) {
    async.map(posts, storePost, callback);

@@ -7,7 +7,7 @@ import bunyan from 'bunyan';
 
 import redisModule from 'redis';
 
-const log = bunyan.createLogger({name: 'hydration'});
+const log = bunyan.createLogger({name: 'blogdemo:apiserver'});
 const app = express();
 const redisClient = redisModule.createClient();
 const marked = require('marked');
@@ -33,8 +33,8 @@ function retrievePost(id, callback) {
 }
 
 function retrievePosts(ids, callback) {
-   async.map(ids, (id, callback) => {
-      redisClient.hgetall('post:dict:' + id, callback);
+   async.map(ids, (id, asyncCallback) => {
+      redisClient.hgetall('post:dict:' + id, asyncCallback);
    }, (err, posts) => {
       if (err) {
          callback(err);
@@ -46,6 +46,37 @@ function retrievePosts(ids, callback) {
             }
          }));
       }
+   });
+}
+
+function getPostsAll(req, res) {
+   redisClient.smembers('post:set', (err, ids) => {
+      sendPosts(res, err, ids);
+   });
+}
+
+function getPosts(req, res) {
+   if (!req.query.limit) {
+      req.query.limit = 10;
+   }
+   if (req.query.q === 'sorted') {
+      getPostsSorted(req, res);
+   } else {
+      getPostsFeed(req, res);
+   }
+}
+
+function getPostsSorted(req, res) {
+   redisClient.zrange('post:sorted:published',
+         0, req.query.limit, (err, ids) => {
+      sendPosts(res, err, ids);
+   });
+}
+
+function getPostsFeed(req, res) {
+   redisClient.lrange('post:list',
+         0, req.query.limit, (err, ids) => {
+      sendPosts(res, err, ids);
    });
 }
 
@@ -63,33 +94,7 @@ function sendPosts(res, err, ids) {
    }
 }
 
-function getPostsAll(req, res) {
-   redisClient.smembers('post:set', (err, ids) => {
-      sendPosts(res, err, ids);
-   });
-}
 
-function getPosts(req, res) {
-   if (req.query.q === 'sorted') {
-      getPostsSorted(req, res);
-   } else {
-      getPostsFeed(req, res);
-   }
-}
-
-function getPostsFeed(req, res) {
-   redisClient.lrange('post:list',
-         0, req.query.count || 10, (err, ids) => {
-      sendPosts(res, err, ids);
-   });
-}
-
-function getPostsSorted(req, res) {
-   redisClient.zrange('post:sorted:published',
-         0, req.query.count || 10, (err, ids) => {
-      sendPosts(res, err, ids);
-   });
-}
 
 function getHelp(req, res) {
    try {

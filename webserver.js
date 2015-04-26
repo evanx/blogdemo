@@ -35,7 +35,7 @@ function getPostId(req, res) {
 
 import redisModule from 'redis';
 
-const log = bunyan.createLogger({name: 'webserver'});
+const log = bunyan.createLogger({name: 'blogdemo:webserver'});
 const app = express();
 const redisClient = redisModule.createClient();
 const marked = require('marked');
@@ -44,13 +44,8 @@ redisClient.on('error', err => {
    log.error('error', err);
 });
 
-
-
-
-
 global.log = log;
 global.redisClient = redisClient;
-
 
 function handleError(res, error) {
    log.error('error', error);
@@ -98,8 +93,8 @@ function retrievePosts(ids, callback) {
 import Posts from './components/Posts';
 
 function getPosts(req, res) {
-   if (!req.query.count) {
-      req.query.count = 10;
+   if (!req.query.limit) {
+      req.query.limit = 10;
    }
    if (req.query.q === 'sorted') {
       getPostsSorted(req, res);
@@ -110,17 +105,18 @@ function getPosts(req, res) {
 
 function getPostsFeed(req, res) {
    redisClient.lrange('post:list',
-         0, req.query.count, (err, ids) => {
+         0, req.query.limit, (err, ids) => {
       sendPosts(res, err, ids);
    });
 }
 
 function getPostsSorted(req, res) {
    redisClient.zrevrange('post:sorted:published',
-         0, req.query.count, (err, ids) => {
+         0, req.query.limit, (err, ids) => {
       sendPosts(res, err, ids);
    });
 }
+
 
 function sendPosts(res, err, ids) {
    if (err) {

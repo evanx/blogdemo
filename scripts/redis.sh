@@ -26,23 +26,13 @@ c0print_dict() {
 }
 
 c0print_seq() {
-  echo; echo redis-cli keys "$name:seq:*"
-  redis-cli keys "$name:seq:*" 
-  for key in `redis-cli keys "$name:seq:*"`
-  do
-    echo; echo redis-cli get "$key"
-    redis-cli get "$key"
-  done
+  echo; echo redis-cli get "$name:seq"
+  redis-cli get "$name:seq" 
 }
 
 c0print_set() {
-  echo; echo redis-cli keys "$name:set:*"
-  redis-cli keys "$name:set:*" 
-  for key in `redis-cli keys "$name:set:*"`
-  do
-    echo; echo redis-cli smembers "$key"
-    redis-cli smembers "$key"
-  done
+  echo; echo redis-cli smembers "$name:set"
+  redis-cli smembers "$name:set"
 }
 
 c0print_sorted() {

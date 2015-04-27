@@ -3,9 +3,9 @@ import async from 'async';
 import lodash from 'lodash';
 import bunyan from 'bunyan';
 import redisLib from 'redis';
+const redis = redisLib.createClient();
 
 const log = bunyan.createLogger({name: 'blogdemo', level: 'debug'});
-const redis = redisLib.createClient();
 
 redis.on('error', function (err) {
    log.error('error', err);

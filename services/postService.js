@@ -9,10 +9,10 @@ const postService = {
    exists: function(id, cb) {
       redis.sismember('post:set', id, cb);
    },
-   latest: function(count, cb) {
+   retrieveLatest: function(count, cb) {
       redis.lrange('post:list', 0, count, cb);
    },
-   sorted: function(count, cb) {
+   retrieveSorted: function(count, cb) {
       redis.zrange('post:sorted:published', 0, count, cb);
    }
 };

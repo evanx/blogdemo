@@ -1,7 +1,5 @@
-
 import React from 'react';
 import lodash from 'lodash';
-
 import PostSummary from './PostSummary';
 
 var Posts = React.createClass({

@@ -6,6 +6,28 @@ import express from 'express';
 import bunyan from 'bunyan';
 import React from 'react';
 
+import redisModule from 'redis';
+
+const log = bunyan.createLogger({name: 'blogdemo:webserver'});
+const app = express();
+const redisClient = redisModule.createClient();
+const marked = require('marked');
+
+redisClient.on('error', err => {
+   log.error('error', err);
+});
+
+global.log = log;
+global.redisClient = redisClient;
+
+function handleError(res, error) {
+   log.error('error', error);
+   if (error instanceof Error) {
+      log.error('error stack', error.stack);
+   }
+   res.status(500).send(error);
+}
+
 import postService from './services/postService';
 
 import Post from './components/Post';
@@ -30,29 +52,6 @@ function getPostId(req, res) {
          res.send(html);
       }
    });
-}
-
-
-import redisModule from 'redis';
-
-const log = bunyan.createLogger({name: 'blogdemo:webserver'});
-const app = express();
-const redisClient = redisModule.createClient();
-const marked = require('marked');
-
-redisClient.on('error', err => {
-   log.error('error', err);
-});
-
-global.log = log;
-global.redisClient = redisClient;
-
-function handleError(res, error) {
-   log.error('error', error);
-   if (error instanceof Error) {
-      log.error('error stack', error.stack);
-   }
-   res.status(500).send(error);
 }
 
 function retrievePost(id, callback) {

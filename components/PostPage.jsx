@@ -30,4 +30,4 @@ var PostPage = React.createClass({
    }
 });
 
-module.exports = Posts;
+module.exports = PostPage;

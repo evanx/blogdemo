@@ -30,7 +30,10 @@ function handleError(res, error) {
 
 import postService from './services/postService';
 
+import PostPage from './components/PostPage';
 import Post from './components/Post';
+import Posts from './components/Posts';
+import PostSummary from './components/PostSummary';
 
 function start() {
    app.use(appLogger);
@@ -86,10 +89,6 @@ function retrievePosts(ids, callback) {
       }
    });
 }
-
-
-
-import Posts from './components/Posts';
 
 function getPosts(req, res) {
    if (!req.query.limit) {

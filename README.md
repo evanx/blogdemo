@@ -1,9 +1,9 @@
 
-## Demo for NodeCPT Redis and React talk 
+## Demo for NodeCPT Redis and React talk
 
 We demonstrate the use of Redis as a data store for blog posts, and implement a trivial "API server" to serve our JSON content using ExpressJS.
 
-![](https://evanx.guthub.io/images/blogdemo/api-post1.png)
+![](https://evanx.github.io/images/blogdemo/api-post1.png)
 
 Furthermore, we implement a web server to use ReactJS to render the content as HTML on NodeJS, served by ExpressJS.
 
@@ -36,7 +36,7 @@ function retrievePosts(ids, callback) {
 }
 ```
 
-![](https://evanx.guthub.io/images/blogdemo/api-posts.png)
+![](https://evanx.github.io/images/blogdemo/api-posts.png)
 
 ### Web server
 
@@ -75,6 +75,4 @@ const Post = React.createClass({
 });
 ```
 
-![](https://evanx.guthub.io/images/blogdemo/web-post1.png)
-
-
+![](https://evanx.github.io/images/blogdemo/web-post1.png)

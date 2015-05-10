@@ -5,7 +5,11 @@ We demonstrate the use of Redis as a data store for blog posts, and implement a 
 
 ![](https://evanx.github.io/images/blogdemo/api-post1.png)
 
+<hr>
+
 Furthermore, we implement a web server to use ReactJS to render the content as HTML on NodeJS, served by ExpressJS.
+
+![](https://evanx.github.io/images/blogdemo/web-posts.png)
 
 ### API server
 

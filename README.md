@@ -62,7 +62,9 @@ function getPostId(req, res) {
 }
 ```
 
-where a our `PostPage.jsx` React component is composed using the following trivial `Post.jsx` component.
+where we render a `PostPage` React component into HTML.
+
+The `PostPage` component is composed using the following `Post` component.
 
 ```javascript
 import React from 'react';
@@ -82,4 +84,3 @@ const Post = React.createClass({
 
 ![](https://evanx.github.io/images/blogdemo/web-post1.png)
 <hr>
-

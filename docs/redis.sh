@@ -9,10 +9,10 @@ delete_all() {
   done
 }
 
-print_dict() {
-  echo redis-cli keys "$name:dict:*"
-  redis-cli keys "$name:dict:*" | wc -l
-  for key in `redis-cli keys "$name:dict:*"`
+print_table() {
+  echo redis-cli keys "$name:table:*"
+  redis-cli keys "$name:table:*" | wc -l
+  for key in `redis-cli keys "$name:table:*"`
   do
     echo; echo redis-cli hkeys "$key"
     redis-cli hkeys "$key"
@@ -54,7 +54,7 @@ c0print_set() {
 
 
 c0print() {
-  c0print_dict
+  c0print_table
   c0print_set
   c0print_seq
   c0print_sorted

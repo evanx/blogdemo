@@ -29,12 +29,12 @@ function handleError(res, error) {
 }
 
 function retrievePost(id, callback) {
-   redisClient.hgetall('post:dict:' + id, callback);
+   redisClient.hgetall('post:table:' + id, callback);
 }
 
 function retrievePosts(ids, callback) {
    async.map(ids, (id, asyncCallback) => {
-      redisClient.hgetall('post:dict:' + id, asyncCallback);
+      redisClient.hgetall('post:table:' + id, asyncCallback);
    }, (err, posts) => {
       if (err) {
          callback(err);
@@ -126,7 +126,7 @@ function start() {
 }
 
 function getPostId(req, res) {
-   redisClient.hgetall('post:dict:' + req.params.id, (err, post) => {
+   redisClient.hgetall('post:table:' + req.params.id, (err, post) => {
       if (err) {
          res.status(500).send(err);
       } else {

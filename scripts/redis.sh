@@ -12,11 +12,11 @@ c0clear() {
   done
 }
 
-c0print_dict() {
-  echo; echo redis-cli keys "$name:dict:*"
-  redis-cli keys "$name:dict:*" | wc -l
-  echo; echo redis-cli keys "$name:dict:*"
-  for key in `redis-cli keys "$name:dict:*"`
+c0print_table() {
+  echo; echo redis-cli keys "$name:table:*"
+  redis-cli keys "$name:table:*" | wc -l
+  echo; echo redis-cli keys "$name:table:*"
+  for key in `redis-cli keys "$name:table:*"`
   do
     echo; echo redis-cli hkeys "$key"
     redis-cli hkeys "$key"
@@ -46,7 +46,7 @@ c0print_sorted() {
 }
 
 c0print() {
-  c0print_dict
+  c0print_table
   c0print_set
   c0print_seq
   c0print_sorted

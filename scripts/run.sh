@@ -11,3 +11,4 @@ export REDIS_PORT=6379
 export ENV_TYPE=test
 
 nodejs index.js | ./node_modules/bunyan/bin/bunyan
+

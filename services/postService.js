@@ -4,7 +4,7 @@ export const redis = redisLib.createClient();
 
 const postService = {
    find: function(id, cb) {
-      redis.hgetall('post:dict:' + id, cb);
+      redis.hgetall('post:table:' + id, cb);
    },
    exists: function(id, cb) {
       redis.sismember('post:set', id, cb);

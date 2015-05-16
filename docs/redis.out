@@ -1,5 +1,5 @@
 
-$ redis-cli hkeys test:dict:post:1
+$ redis-cli hkeys test:table:post:1
 1) "title"
 2) "description"
 3) "body"

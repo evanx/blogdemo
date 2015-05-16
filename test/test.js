@@ -39,7 +39,7 @@ function storePost(post, callback) {
       } else {
          log.info('storePost', id);
          let multi = redis.multi();
-         multi.hmset('post:dict:' + id, post);
+         multi.hmset('post:table:' + id, post);
          multi.lpush('post:list', id);
          multi.sadd('post:set', id);
          multi.zadd('post:sorted:published', post.published, id);
@@ -63,19 +63,19 @@ function updatePost(id, mutator, callback) {
          if (!ismember) {
             cb({message: 'not found'});
          } else {
-            redis.hgetall('post:dict:' + id, cb);
+            redis.hgetall('post:table:' + id, cb);
          }
       },
       function(post, cb) {
          mutator(post);
-         redis.hmset('post:dict:' + id, post, cb);
+         redis.hmset('post:table:' + id, post, cb);
       }
    ], callback);
 }
 
 function loadPostTest(callback) {
    redis.lindex('post:list', 0, function(err, id) {
-      redis.hgetall('post:dict:' + id, callback);
+      redis.hgetall('post:table:' + id, callback);
    });
 }
 

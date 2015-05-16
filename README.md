@@ -19,7 +19,7 @@ The following code snippet demonstrates retrieving data from Redis.
 function retrievePosts(ids, callback) {
    log.info('posts', ids);
    async.map(ids, function(id, cb) {
-      redisClient.hgetall('post:dict:' + id, (err, post) => {
+      redisClient.hgetall('post:table:' + id, (err, post) => {
          log.info('posts hgetall', {id, err, post});
          cb(err, post);
       });

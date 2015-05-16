@@ -58,19 +58,19 @@ function getPostId(req, res) {
 }
 
 function retrievePost(id, callback) {
-   redisClient.hgetall('test:dict:post', callback);
+   redisClient.hgetall('test:table:post', callback);
 }
 
 function retrievePostsFull(ids, callback) {
    async.map(ids, function(id, cb) {
-      redisClient.hgetall('post:dict:' + id, cb);
+      redisClient.hgetall('post:table:' + id, cb);
    }, callback);
 }
 
 function retrievePosts(ids, callback) {
    log.info('posts', ids);
    async.map(ids, function(id, cb) {
-      redisClient.hgetall('post:dict:' + id, (err, post) => {
+      redisClient.hgetall('post:table:' + id, (err, post) => {
          log.info('posts hgetall', {id, err, post});
          cb(err, post);
       });

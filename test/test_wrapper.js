@@ -22,10 +22,10 @@ const redis = {
       redisClient.incr(joinColon(ns, 'seq', params.type), cb);
    },
    hmset: function(params, cb) {
-      redisClient.hmset(joinColon(ns, 'dict', params.type, params.id), params.dict, cb);
+      redisClient.hmset(joinColon(ns, 'table', params.type, params.id), params.table, cb);
    },
    hgetall: function(params, cb) {
-      redisClient.hgetall(joinColon(ns, 'dict', params.type, params.id), cb);
+      redisClient.hgetall(joinColon(ns, 'table', params.type, params.id), cb);
    },
    sismember: function(params, cb) {
       redisClient.sismember(joinColon(ns, 'set', params.type), params.id, cb);
@@ -54,11 +54,11 @@ class RedisMulti {
    }
 
    hmset(params) {
-      this.multi.hmset(joinColon(ns, 'dict', params.type, params.id), params.dict);
+      this.multi.hmset(joinColon(ns, 'table', params.type, params.id), params.table);
    }
 
    hgetall(params) {
-      this.multi.hgetall(joinColon(ns, 'dict', params.type, params.id));
+      this.multi.hgetall(joinColon(ns, 'table', params.type, params.id));
    }
 
    zadd(params) {
@@ -88,7 +88,7 @@ function createPosts(callback) {
 }
 
 function createPost(post, callback) {
-   let params = {type: 'post', by: 'published', score: post.published, dict: post};
+   let params = {type: 'post', by: 'published', score: post.published, table: post};
    redis.incr(params, function(err, id) {
       if (err) {
          callback(err);
@@ -112,7 +112,7 @@ function createPost(post, callback) {
 }
 
 function updatePostId(id, post, callback) {
-   let params = {type: 'post', id: id, dict: post};
+   let params = {type: 'post', id: id, table: post};
    redis.sismember(params, function(err, ismember) {
       if (err) {
          callback(err);
@@ -146,9 +146,9 @@ function updatePost(callback) {
 }
 
 function loadPost(callback) {
-   redis.hgetall({type: 'post', id: 2}, function(err, dict) {
-      log.info('loadPost', {err, dict});
-      callback(err, dict);
+   redis.hgetall({type: 'post', id: 2}, function(err, table) {
+      log.info('loadPost', {err, table});
+      callback(err, table);
    });
 }
 

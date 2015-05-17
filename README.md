@@ -30,7 +30,7 @@ function retrievePosts(ids, callback) {
       } else {
          callback(null, lodash.map(posts, (post, index) => {
             return {
-               id: ids[index],
+               id: ids[index],/.1/
                title: post.title,
                description: post.description
             }

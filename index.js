@@ -1,4 +1,5 @@
 
-require('babel/register')({stage: 0});;
+// index.js
+require('babel/register')({stage: 0});
 require('./apiserver');
 require('./webserver');

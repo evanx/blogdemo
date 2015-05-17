@@ -93,6 +93,8 @@ function retrievePosts(ids, callback) {
 function getPosts(req, res) {
    if (!req.query.limit) {
       req.query.limit = 10;
+   } else if (req.query.limit < 1) {
+      throw new Error('invalid limit');
    }
    if (req.query.q === 'sorted') {
       getPostsSorted(req, res);
@@ -101,16 +103,16 @@ function getPosts(req, res) {
    }
 }
 
-function getPostsFeed(req, res) {
-   redisClient.lrange('post:list',
-         0, req.query.limit, (err, ids) => {
+function getPostsSorted(req, res) {
+   redisClient.zrevrange('post:sorted:published',
+         0, req.query.limit - 1, (err, ids) => {
       sendPosts(res, err, ids);
    });
 }
 
-function getPostsSorted(req, res) {
-   redisClient.zrevrange('post:sorted:published',
-         0, req.query.limit, (err, ids) => {
+function getPostsFeed(req, res) {
+   redisClient.lrange('post:list',
+         0, req.query.limit - 1, (err, ids) => {
       sendPosts(res, err, ids);
    });
 }

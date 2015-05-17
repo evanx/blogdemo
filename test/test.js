@@ -19,7 +19,7 @@ const posts = [
       published: new Date().getTime()
    },
    {
-      title: 'my second post',
+      title: 'my second postt',
       description: 'now this is my second post',
       body: '<p>second post first para</p><p>the second para</p>',
       published: new Date().getTime() + 1000
@@ -83,7 +83,7 @@ function loadPostTest(callback) {
 function updatePostTest(callback) {
    redis.lindex('post:list', 0, function(err, id) {
       updatePost(id, function(post) {
-         post.title = 'updated title';
+         post.title = 'my second post';
       }, callback);
    });
 }

@@ -6,9 +6,10 @@ var Posts = React.createClass({
    render: function () {
       return (
          <div>
-            {lodash.map(this.props.posts, post => {
+            {this.props.posts.map(post => {
                return (
-                  <PostSummary post={post} key={post.id}/>
+                  <PostSummary post={post}
+                     key={post.id}/>
                );
             })}
          </div>

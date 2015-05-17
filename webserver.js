@@ -5,7 +5,6 @@ import lodash from 'lodash';
 import express from 'express';
 import bunyan from 'bunyan';
 import React from 'react';
-
 import redisModule from 'redis';
 
 const log = bunyan.createLogger({name: 'blogdemo:webserver'});
@@ -69,13 +68,9 @@ function retrievePostsFull(ids, callback) {
 
 function retrievePosts(ids, callback) {
    log.info('posts', ids);
-   async.map(ids, function(id, cb) {
-      redisClient.hgetall('post:table:' + id, (err, post) => {
-         log.info('posts hgetall', {id, err, post});
-         cb(err, post);
-      });
+   async.map(ids, (id, cb) => {
+      redisClient.hgetall('post:table:' + id, cb);
    }, (err, posts) => {
-      log.info('posts', {ids, err, posts});
       if (err) {
          callback(err);
       } else {

@@ -2,25 +2,43 @@
 import redisModule from 'redis';
 import bunyan from 'bunyan';
 import assert from 'assert';
+import lodash from 'lodash';
 
-//import postService from './postService';
+var promisify = require('es6-promisify');
+
+import postService from '../services/postService';
+import redisService from '../services/redisService';
 
 const log = bunyan.createLogger({name: 'await'});
 const redisClient = redisModule.createClient();
 
-export function getPostIdsPromise(start, stop) {
+console.info(Promise.toString());
+
+// PromiseUtils.js
+export function getPromise(caller) {
    return new Promise((resolve, reject) => {
-      redisClient.lrange('post:list', start, stop,
-         (err, reply) => {
-            if (err) {
-               reject(err);
-            } else {
-               //reject('test reject');
-               resolve(reply);
-            }
+      caller((err, reply) => {
+         if (err) {
+            reject(err);
+         } else {
+            resolve(reply);
          }
-      )
+      });
    });
+}
+
+export function getPostIdsPromise(start, stop) {
+   return PromiseUtils.getPromise(cb => {
+      redisClient.lrange('post:list', start, stop, cb);
+   });
+}
+
+export function getPostIdsPromise(start, stop) {
+   return redisService.lrange('post:list', start, stop);
+}
+
+export function getPostPromise(postId) {
+   return redisService.hgetall('post:table:' + postId);
 }
 
 export function getPostPromise(postId) {
@@ -37,6 +55,10 @@ export function getPostPromise(postId) {
    });
 }
 
+export async function retrievePostAsync0(id) {
+   return await getPostPromise(id);
+}
+
 export async function retrievePostAsync(id) {
    return await getPostPromise(id);
 }
@@ -47,7 +69,7 @@ export async function retrievePostsAsync(start, stop) {
    }
    let postIds = await getPostIdsPromise(start, stop);
    return await* postIds.map(async(postId) => {
-      return await getPostPromise(postId);
+      return await getPostPromise(id);
    });
 }
 
@@ -55,7 +77,7 @@ export async function retrievePostsAsync(start, stop) {
 export async function retrievePostsAsync0(start, stop) {
    let postIds = await getPostIdsPromise(start, stop);
    return Promise.all(postIds.map(async(postId) => {
-      return retrievePostAsync(postId);
+      return await getPostPromise(id);
    }));
 }
 
@@ -73,6 +95,8 @@ async function test() {
       console.error('test failed:', error);
    } finally {
       redisClient.end();
+      redisService.end();
+      postService.end();
    }
 }
 

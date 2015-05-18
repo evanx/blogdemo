@@ -12,6 +12,19 @@ import redisPromisified from '../services/redisPromisified';
 const log = bunyan.createLogger({name: 'await'});
 const redisClient = redisModule.createClient();
 
+export function getPostPromise(postId) {
+   return new Promise((resolve, reject) => {
+      redisClient.hgetall('post:table:' + postId,
+         (err, reply) => {
+            if (err) {
+               reject(err);
+            } else {
+               resolve(reply);
+            }
+      });
+   });
+}
+
 // PromiseUtils.js
 export function getPromise(caller) {
    return new Promise((resolve, reject) => {
@@ -31,32 +44,6 @@ export function getPostIdsPromise(start, stop) {
    });
 }
 
-export function getPostIdsPromise(start, stop) {
-   return redisPromisified.lrange('post:list', start, stop);
-}
-
-export function getPostPromise(postId) {
-   return redisPromisified.hgetall('post:table:' + postId);
-}
-
-export function getPostPromise(postId) {
-   return new Promise((resolve, reject) => {
-      redisClient.hgetall('post:table:' + postId,
-         (err, reply) => {
-            if (err) {
-               reject(err);
-            } else {
-               //reject('test reject');
-               resolve(reply);
-            }
-      });
-   });
-}
-
-export async function retrievePostAsync0(id) {
-   return await getPostPromise(id);
-}
-
 const { lrange, hgetall, zrevrange } = redisPromisified;
 
 export async function retrievePostAsync(id) {
@@ -64,26 +51,12 @@ export async function retrievePostAsync(id) {
 }
 
 export async function retrievePostsAsync(start, stop) {
-   let ids = await lrange('post:list', start, stop);
-   return Promise.all(ids.map(async(id) =>
-      retrievePostAsync(id)));
-}
-
-export async function retrievePostsAsync1(start, stop) {
    if (stop < start) {
       throw new Error('Invalid arguments');
    }
-   let postIds = await getPostIdsPromise(start, stop);
-   return await* postIds.map(async(postId) => {
-      return await getPostPromise(id);
-   });
-}
-
-export async function retrievePostsAsync0(start, stop) {
-   let postIds = await getPostIdsPromise(start, stop);
-   return Promise.all(postIds.map(async(postId) => {
-      return await getPostPromise(id);
-   }));
+   let ids = await lrange('post:list', start, stop);
+   return Promise.all(ids.map(async(id) =>
+      retrievePostAsync(id)));
 }
 
 async function test() {

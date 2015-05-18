@@ -27,18 +27,15 @@ function handleError(res, error) {
    res.status(500).send(error);
 }
 
-import postService from './services/postService';
-
-import PostPage from './components/PostPage';
 import Post from './components/Post';
 import Posts from './components/Posts';
 import PostSummary from './components/PostSummary';
 
+import PostPage from './components/PostPage';
+
 function start() {
    app.use(appLogger);
-   app.get('/help', getHelp);
    app.get('/posts', getPosts);
-   app.get('/postsSorted', getPostsSorted);
    app.get('/post/:id', getPostId);
    app.listen(process.env.APP_PORT);
    log.info('started', {port: process.env.APP_PORT});
@@ -103,10 +100,6 @@ function getPostsSorted(req, res) {
       }
    );
 }
-
-function retrievePosts(ids, callback) {
-}
-
 
 function getHelp(req, res) {
    try {

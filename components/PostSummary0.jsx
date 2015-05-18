@@ -18,11 +18,13 @@ const style = {
 var PostSummary = React.createClass({
    render: function () {
       var post = this.props.post;
+
       return (
          React.createElement("div", null,
             React.createElement("h1", null, post.title),
             React.createElement("div", null, post.description)
          )
+
       );
    }
 });

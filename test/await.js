@@ -12,8 +12,6 @@ import redisService from '../services/redisService';
 const log = bunyan.createLogger({name: 'await'});
 const redisClient = redisModule.createClient();
 
-console.info(Promise.toString());
-
 // PromiseUtils.js
 export function getPromise(caller) {
    return new Promise((resolve, reject) => {
@@ -64,6 +62,13 @@ export async function retrievePostAsync(id) {
 }
 
 export async function retrievePostsAsync(start, stop) {
+   let postIds = await redisService.lrange('post:list', start, stop);
+   return Promise.all(postIds.map(async(postId) => {
+      return await redisService.hgetall('post:table:' + postId);;
+   }));
+}
+
+export async function retrievePostsAsync1(start, stop) {
    if (stop < start) {
       throw new Error('Invalid arguments');
    }
@@ -72,7 +77,6 @@ export async function retrievePostsAsync(start, stop) {
       return await getPostPromise(id);
    });
 }
-
 
 export async function retrievePostsAsync0(start, stop) {
    let postIds = await getPostIdsPromise(start, stop);
@@ -92,7 +96,7 @@ async function test() {
       assert.equal(posts.length, 2);
       assert.equal(posts[0].title, 'my second post');
    } catch (error) {
-      console.error('test failed:', error);
+      console.error('test failed:', error, error.stack);
    } finally {
       redisClient.end();
       redisService.end();

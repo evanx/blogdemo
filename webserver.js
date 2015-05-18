@@ -38,97 +38,75 @@ function start() {
    app.use(appLogger);
    app.get('/help', getHelp);
    app.get('/posts', getPosts);
+   app.get('/postsSorted', getPostsSorted);
    app.get('/post/:id', getPostId);
    app.listen(process.env.APP_PORT);
    log.info('started', {port: process.env.APP_PORT});
 }
 
 function getPostId(req, res) {
-   postService.find(req.params.id, (err, post) => {
-      if (err) {
-         res.status(500).send(err);
-      } else {
-         var html = React.renderToString(
+   postService.getPostPromise(req.params.id).then(
+      post => {
+         let html = React.renderToString(
             React.createElement(PostPage, {post}));
          res.set('Content-Type', 'text/html');
          res.send(html);
-      }
-   });
+      });
 }
 
-function retrievePost(id, callback) {
-   redisClient.hgetall('test:table:post', callback);
-}
+import redisPromisified from './services/redisPromisified';
 
-function retrievePostsFull(ids, callback) {
-   async.map(ids, function(id, cb) {
-      redisClient.hgetall('post:table:' + id, cb);
-   }, callback);
-}
+const { lrange, hgetall, zrevrange } = redisPromisified;
 
-function retrievePosts(ids, callback) {
-   log.info('posts', ids);
-   async.map(ids, (id, cb) => {
-      redisClient.hgetall('post:table:' + id, cb);
-   }, (err, posts) => {
-      if (err) {
-         callback(err);
-      } else {
-         callback(null, lodash.map(posts, (post, index) => {
-            return {
-               id: ids[index],
-               title: post.title,
-               description: post.description
-            }
-         }));
-      }
-   });
-}
-
-function getPosts(req, res) {
+async function getPosts(req, res) {
    if (!req.query.limit) {
       req.query.limit = 10;
-   } else if (req.query.limit < 1) {
-      throw new Error('invalid limit');
    }
    if (req.query.q === 'sorted') {
-      getPostsSorted(req, res);
+      sendPosts(res, await zrevrange(
+         'post:sorted:published', 0, req.query.limit));
    } else {
-      getPostsFeed(req, res);
+      sendPosts(res, await lrange(
+         'post:list', 0, req.query.limit));
    }
+}
+
+async function sendPosts(res, ids) {
+   let posts = await* ids.map(async(id) =>
+      hgetall('post:table:' + id));
+   let html = React.renderToString(
+      React.createElement(Posts, {posts}));
+   res.set('Content-Type', 'text/html');
+   res.send(html);
 }
 
 function getPostsSorted(req, res) {
-   redisClient.zrevrange('post:sorted:published',
-         0, req.query.limit - 1, (err, ids) => {
-      sendPosts(res, err, ids);
-   });
-}
-
-function getPostsFeed(req, res) {
-   redisClient.lrange('post:list',
-         0, req.query.limit - 1, (err, ids) => {
-      sendPosts(res, err, ids);
-   });
-}
-
-
-function sendPosts(res, err, ids) {
-   if (err) {
-      res.status(500).send(err);
-   } else {
-      retrievePosts(ids, (err, posts) => {
+   redisClient.zrevrange(
+      'post:sorted:published', 0, req.query.limit || 10,
+      (err, ids) => {
          if (err) {
             res.status(500).send(err);
          } else {
-            var html = React.renderToString(
-               React.createElement(Posts, {posts}));
-            res.set('Content-Type', 'text/html');
-            res.send(html);
+            async.map(ids, (id, cb) => {
+               redisClient.hgetall('post:table:' + id, cb);
+            }, (err, posts) => {
+               if (err) {
+                  res.status(500).send(err);
+               } else {
+                  let html = React.renderToString(
+                     React.createElement(Posts, {posts}));
+                  res.set('Content-Type', 'text/html');
+                  res.send(html);
+               }
+            });
          }
-      });
-   }
+      }
+   );
 }
+
+function retrievePosts(ids, callback) {
+}
+
 
 function getHelp(req, res) {
    try {

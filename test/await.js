@@ -7,7 +7,7 @@ import lodash from 'lodash';
 var promisify = require('es6-promisify');
 
 import postService from '../services/postService';
-import redisService from '../services/redisService';
+import redisPromisified from '../services/redisPromisified';
 
 const log = bunyan.createLogger({name: 'await'});
 const redisClient = redisModule.createClient();
@@ -32,11 +32,11 @@ export function getPostIdsPromise(start, stop) {
 }
 
 export function getPostIdsPromise(start, stop) {
-   return redisService.lrange('post:list', start, stop);
+   return redisPromisified.lrange('post:list', start, stop);
 }
 
 export function getPostPromise(postId) {
-   return redisService.hgetall('post:table:' + postId);
+   return redisPromisified.hgetall('post:table:' + postId);
 }
 
 export function getPostPromise(postId) {
@@ -57,15 +57,16 @@ export async function retrievePostAsync0(id) {
    return await getPostPromise(id);
 }
 
+const { lrange, hgetall, zrevrange } = redisPromisified;
+
 export async function retrievePostAsync(id) {
-   return await getPostPromise(id);
+   return await hgetall('post:table:' + id);
 }
 
 export async function retrievePostsAsync(start, stop) {
-   let postIds = await redisService.lrange('post:list', start, stop);
-   return Promise.all(postIds.map(async(postId) => {
-      return await redisService.hgetall('post:table:' + postId);;
-   }));
+   let ids = await lrange('post:list', start, stop);
+   return Promise.all(ids.map(async(id) =>
+      retrievePostAsync(id)));
 }
 
 export async function retrievePostsAsync1(start, stop) {
@@ -99,11 +100,11 @@ async function test() {
       console.error('test failed:', error, error.stack);
    } finally {
       redisClient.end();
-      redisService.end();
+      redisPromisified.end();
       postService.end();
    }
 }
 
-
-
-test();
+test().then(() => {
+   log.info('completed');
+});

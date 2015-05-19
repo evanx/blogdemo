@@ -15,6 +15,8 @@ var resetStyle = "p {margin: 8}";
 
 //               <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
+var Post = require('./Post');
+
 var PostPage = React.createClass({
    render: function () {
       let post = this.props.post;
@@ -26,9 +28,8 @@ var PostPage = React.createClass({
                   content={post.description}/>
                <meta name="og:description"
                   content={post.description}/>
-               <style>{resetStyle}</style>
             </head>
-            <body style={style.body}>
+            <body>
                <Post post={post}/>
             </body>
          </html>

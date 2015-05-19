@@ -14,8 +14,8 @@ const style = {
 //          <h1 style={style.h1}>{post.title}</h1>
 
 var PostSummary = React.createClass({
-   render: function () {
-      var post = this.props.post;
+   render() {
+      let post = this.props.post;
       return (
          <div>
             <h1>{post.title}</h1>

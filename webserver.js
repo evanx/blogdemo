@@ -27,25 +27,26 @@ function handleError(res, error) {
    res.status(500).send(error);
 }
 
+import postService from './services/postService';
+
 import Post from './components/Post';
 import Posts from './components/Posts';
 import PostSummary from './components/PostSummary';
-
-import PostPage from './components/PostPage';
 
 function start() {
    app.use(appLogger);
    app.get('/posts', getPosts);
    app.get('/post/:id', getPostId);
    app.listen(process.env.APP_PORT);
-   log.info('started', {port: process.env.APP_PORT});
 }
+
+var PostPage = require('./components/PostPage');
 
 function getPostId(req, res) {
    postService.getPostPromise(req.params.id).then(
-      post => {
-         let html = React.renderToString(
-            React.createElement(PostPage, {post}));
+      function(post) {
+         var html = React.renderToString(
+            React.createElement(PostPage, {post: post}));
          res.set('Content-Type', 'text/html');
          res.send(html);
       });
@@ -53,22 +54,27 @@ function getPostId(req, res) {
 
 import redisPromisified from './services/redisPromisified';
 
-const { lrange, hgetall, zrevrange } = redisPromisified;
+const { zrevrange, lrange } = redisPromisified;
 
 async function getPosts(req, res) {
    if (!req.query.limit) {
       req.query.limit = 10;
    }
+   var ids;
    if (req.query.q === 'sorted') {
-      sendPosts(res, await zrevrange(
-         'post:sorted:published', 0, req.query.limit));
+      ids = await zrevrange(
+         'post:sorted:published', 0, req.query.limit);
    } else {
-      sendPosts(res, await lrange(
-         'post:list', 0, req.query.limit));
+      ids = await lrange(
+         'post:list', 0, req.query.limit);
    }
+   sendPosts(res, ids);
 }
 
+const { hgetall } = redisPromisified;
+
 async function sendPosts(res, ids) {
+   log.info('sendPosts', ids);
    let posts = await* ids.map(async(id) =>
       hgetall('post:table:' + id));
    let html = React.renderToString(

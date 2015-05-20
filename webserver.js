@@ -7,6 +7,13 @@ import bunyan from 'bunyan';
 import React from 'react';
 import redisModule from 'redis';
 
+import redisPromisified from './services/redisPromisified';
+import postService from './services/postService';
+
+import Post from './components/Post';
+import Posts from './components/Posts';
+import PostSummary from './components/PostSummary';
+
 const log = bunyan.createLogger({name: 'blogdemo:webserver'});
 const app = express();
 const redisClient = redisModule.createClient();
@@ -27,11 +34,25 @@ function handleError(res, error) {
    res.status(500).send(error);
 }
 
-import postService from './services/postService';
+function getHelp(req, res) {
+   try {
+      res.set('Content-Type', "text/html");
+      fs.readFile('README.md', function (err, content) {
+         if (content) {
+            res.send(marked(content.toString()));
+         } else {
+            res.send('no help');
+         }
+      });
+   } catch (error) {
+      handleError(res, error);
+   }
+}
 
-import Post from './components/Post';
-import Posts from './components/Posts';
-import PostSummary from './components/PostSummary';
+function appLogger(req, res, next) {
+   log.debug('app', req.url);
+   next();
+}
 
 function start() {
    app.use(appLogger);
@@ -51,8 +72,6 @@ function getPostId(req, res) {
          res.send(html);
       });
 }
-
-import redisPromisified from './services/redisPromisified';
 
 const { zrevrange, lrange } = redisPromisified;
 
@@ -105,26 +124,6 @@ function getPostsSorted(req, res) {
          }
       }
    );
-}
-
-function getHelp(req, res) {
-   try {
-      res.set('Content-Type', "text/html");
-      fs.readFile('README.md', function (err, content) {
-         if (content) {
-            res.send(marked(content.toString()));
-         } else {
-            res.send('no help');
-         }
-      });
-   } catch (error) {
-      handleError(res, error);
-   }
-}
-
-function appLogger(req, res, next) {
-   log.info('app', req.url);
-   next();
 }
 
 start(process.env);

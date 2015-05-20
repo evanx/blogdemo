@@ -2,18 +2,12 @@
 import React from 'react';
 import lodash from 'lodash';
 
-//import Post from './Post';
-
 var style = {
    body: {
       fontFamily: 'sans-serif',
       marginTop: 4
    }
 };
-
-var resetStyle = "p {margin: 8}";
-
-//               <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
 var Post = require('./Post');
 

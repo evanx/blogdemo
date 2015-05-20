@@ -7,7 +7,7 @@ import bunyan from 'bunyan';
 
 import redisModule from 'redis';
 
-const log = bunyan.createLogger({name: 'blogdemo:apiserver'});
+var log = bunyan.createLogger({name: 'blogdemo:apiserver'});
 const app = express();
 const redisClient = redisModule.createClient();
 const marked = require('marked');
@@ -19,13 +19,32 @@ redisClient.on('error', err => {
 global.log = log;
 global.redisClient = redisClient;
 
-
 function handleError(res, error) {
    log.error('error', error);
    if (error instanceof Error) {
       log.error('error stack', error.stack);
    }
    res.status(500).send(error);
+}
+
+function getHelp(req, res) {
+   try {
+      res.set('Content-Type', "text/html")
+      fs.readFile('README.md', function (err, content) {
+         if (content) {
+            res.send(marked(content.toString()));
+         } else {
+            res.send('no help');
+         }
+      });
+   } catch (error) {
+      handleError(res, error);
+   }
+}
+
+function appLogger(req, res, next) {
+   log.debug('app', req.url);
+   next();
 }
 
 function retrievePost(id, callback) {
@@ -94,28 +113,6 @@ function sendPosts(res, err, ids) {
    }
 }
 
-
-
-function getHelp(req, res) {
-   try {
-      res.set('Content-Type', "text/html");
-      fs.readFile('README.md', function (err, content) {
-         if (content) {
-            res.send(marked(content.toString()));
-         } else {
-            res.send('no help');
-         }
-      });
-   } catch (error) {
-      handleError(res, error);
-   }
-}
-
-function appLogger(req, res, next) {
-   log.info('app', req.url);
-   next();
-}
-
 function start() {
    app.use(appLogger);
    app.get('/help', getHelp);
@@ -134,6 +131,5 @@ function getPostId(req, res) {
       }
    });
 }
-
 
 start();

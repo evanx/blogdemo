@@ -11,8 +11,6 @@ const style = {
    }
 };
 
-//          <h1 style={style.h1}>{post.title}</h1>
-
 var PostSummary = React.createClass({
    render() {
       let post = this.props.post;
@@ -26,3 +24,5 @@ var PostSummary = React.createClass({
 });
 
 module.exports = PostSummary;
+
+//          <h1 style={style.h1}>{post.title}</h1>

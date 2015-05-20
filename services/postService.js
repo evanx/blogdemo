@@ -26,8 +26,3 @@ Object.keys(promisified).forEach(name => {
    module.exports[name] =
       promisify(promisified[name].bind(promisified));
 });
-
-
-
-
-// redisImpl.js

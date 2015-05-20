@@ -44,7 +44,7 @@ export function getPostIdsPromise(start, stop) {
    });
 }
 
-const { lrange, hgetall, zrevrange } = redisPromisified;
+const { hgetall, lrange, zrevrange } = redisPromisified;
 
 export async function retrievePostAsync(id) {
    return await hgetall('post:table:' + id);
@@ -55,7 +55,7 @@ export async function retrievePostsAsync(start, stop) {
       throw new Error('Invalid arguments');
    }
    let ids = await lrange('post:list', start, stop);
-   return Promise.all(ids.map(async(id) =>
+   return await* (ids.map(async (id) =>
       retrievePostAsync(id)));
 }
 

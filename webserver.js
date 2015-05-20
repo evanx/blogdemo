@@ -75,8 +75,8 @@ const { hgetall } = redisPromisified;
 
 async function sendPosts(res, ids) {
    log.info('sendPosts', ids);
-   let posts = await* ids.map(async(id) =>
-      await hgetall('post:table:' + id));
+   let posts = await* ids.map(async (id) =>
+      hgetall('post:table:' + id));
    let html = React.renderToString(
       React.createElement(Posts, {posts}));
    res.set('Content-Type', 'text/html');

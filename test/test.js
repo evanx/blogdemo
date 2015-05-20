@@ -79,7 +79,6 @@ function loadPostTest(callback) {
    });
 }
 
-
 function updatePostTest(callback) {
    redis.lindex('post:list', 0, function(err, id) {
       updatePost(id, function(post) {

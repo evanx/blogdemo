@@ -2,7 +2,7 @@
 import React from 'react';
 import lodash from 'lodash';
 
-import Post from './Post';
+//import Post from './Post';
 
 var style = {
    body: {

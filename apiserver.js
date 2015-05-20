@@ -7,7 +7,7 @@ import bunyan from 'bunyan';
 
 import redisModule from 'redis';
 
-var log = bunyan.createLogger({name: 'blogdemo:apiserver'});
+const log = bunyan.createLogger({name: 'blogdemo:apiserver'});
 const app = express();
 const redisClient = redisModule.createClient();
 const marked = require('marked');

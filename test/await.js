@@ -44,19 +44,19 @@ export function getPostIdsPromise(start, stop) {
    });
 }
 
-const { hgetall, lrange, zrevrange } = redisPromisified;
-
-export async function retrievePostAsync(id) {
-   return await hgetall('post:table:' + id);
-}
+const { lrange, hgetall, zrevrange } = redisPromisified;
 
 export async function retrievePostsAsync(start, stop) {
    if (stop < start) {
       throw new Error('Invalid arguments');
    }
    let ids = await lrange('post:list', start, stop);
-   return await* (ids.map(async (id) =>
-      retrievePostAsync(id)));
+   return await* ids.map(id =>
+      hgetall('post:table:' + id));
+}
+
+export async function retrievePostAsync(id) {
+   return await hgetall('post:table:' + id);
 }
 
 async function test() {

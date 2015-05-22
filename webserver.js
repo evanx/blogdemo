@@ -64,13 +64,13 @@ function start() {
 var PostPage = require('./components/PostPage');
 
 function getPostId(req, res) {
-   postService.getPostPromise(req.params.id).then(
-      function(post) {
-         var html = React.renderToString(
-            React.createElement(PostPage, {post: post}));
-         res.set('Content-Type', 'text/html');
-         res.send(html);
-      });
+   postService.getPostPromise(req.params.id).
+   then(function(post) {
+      var html = React.renderToString(
+         React.createElement(PostPage, {post: post}));
+      res.set('Content-Type', 'text/html');
+      res.send(html);
+   });
 }
 
 const { zrevrange, lrange } = redisPromisified;
@@ -82,7 +82,7 @@ async function getPosts(req, res) {
    var ids;
    if (req.query.q === 'sorted') {
       ids = await zrevrange(
-         'post:sorted:published', 0, req.query.limit);
+         'post:sorted', 0, req.query.limit);
    } else {
       ids = await lrange(
          'post:list', 0, req.query.limit);
